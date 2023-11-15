@@ -1,25 +1,20 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: webappspace
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: webapp-deployment
+  name: webapp9-deployment
   namespace: webappspace
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: webapp
+      app: webapp9
   template:
     metadata:
       labels:
-        app: webapp
+        app: webapp9
     spec:
       containers:
-      - name: webapp
+      - name: webapp9
         image: guylan85/webapp9
         imagePullPolicy: Always
         ports:
@@ -29,22 +24,55 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-service
+  name: webapp9-service
   namespace: webappspace
 spec:
   type: LoadBalancer
   ports:
-  - port: 80
+  - name: http
+    port: 80
     targetPort: 80
     protocol: TCP
-    name: http
-  - port: 443
+  - name: https
+    port: 443
     targetPort: 443
     protocol: TCP
-    name: https
   selector:
-    app: webapp
-#C:\lab\net\k8s>minikube service webapp-service -n webappspace
-#kubectl port-forward svc/argocd-server -n argocd 8002:443
-#kubectl port-forward service/api 5000:5000 -n schoolapp
-#docker build -t guylan85/webapp9 .
+    app: webapp9
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reactapi-frontend-deployment
+  namespace: webappspace
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: reactapi-frontend
+  template:
+    metadata:
+      labels:
+        app: reactapi-frontend
+    spec:
+      containers:
+      - name: reactapi-frontend
+        image: guylan85/reactapi-frontend
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reactapi-frontend-service
+  namespace: webappspace
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+    protocol: TCP
+  selector:
+    app: reactapi-frontend
